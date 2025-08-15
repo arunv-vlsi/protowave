@@ -1,80 +1,142 @@
-document.getElementById("goBtn").addEventListener("click", () => {
-  const protocol = document.getElementById("protocol").value;
-  const data = document.getElementById("dataInput").value.trim();
-  generateWaveform(protocol, data);
-});
+document.addEventListener("DOMContentLoaded", function () {
+    const goBtn = document.getElementById("go-btn");
+    const protocolSelect = document.getElementById("protocol");
+    const dataInput = document.getElementById("data-input");
+    const canvas = document.getElementById("waveform-canvas");
+    const ctx = canvas.getContext("2d");
 
-function generateWaveform(protocol, data) {
-  const container = document.getElementById("waveform-container");
-  container.innerHTML = "";
+    let waveformData = [];
+    let protocol = "i2c";
+    let scrollOffset = 0;
 
-  let signals = [];
-  if (protocol === "i2c") {
-    signals = ["SCL", "SDA"];
-  } else if (protocol === "spi") {
-    signals = ["SCK", "MOSI", "MISO"];
-  } else if (protocol === "uart") {
-    signals = ["TX", "RX"];
-  }
+    // Set canvas size
+    canvas.width = 800;
+    canvas.height = 300;
 
-  // Convert hex/binary input to binary string
-  let binStr = "";
-  if (/^[01]+$/.test(data)) {
-    binStr = data;
-  } else if (/^[0-9A-Fa-f]+$/.test(data)) {
-    binStr = data.split("").map(c =>
-      parseInt(c, 16).toString(2).padStart(4, "0")
-    ).join("");
-  } else {
-    binStr = "10101010"; // fallback
-  }
-
-  signals.forEach(sig => {
-    const row = document.createElement("div");
-    row.className = "signal-row";
-
-    const name = document.createElement("div");
-    name.className = "signal-name";
-    name.textContent = sig;
-
-    const waveformDiv = document.createElement("div");
-    waveformDiv.className = "waveform";
-    waveformDiv.innerHTML = createScrollingWave(binStr);
-
-    row.appendChild(name);
-    row.appendChild(waveformDiv);
-    container.appendChild(row);
-  });
-}
-
-function createScrollingWave(binaryData) {
-  const bitWidth = 20; // px per bit
-  const mid = 20; // y center
-  const high = 0;
-  const low = 40;
-
-  let points = "";
-  let x = 0;
-  let lastLevel = binaryData[0] === "1" ? high : low;
-
-  binaryData.split("").forEach(bit => {
-    let level = bit === "1" ? high : low;
-    // vertical transition
-    if (level !== lastLevel) {
-      points += `${x},${lastLevel} ${x},${level} `;
+    function hexToBin(hex) {
+        return hex.match(/.{1,2}/g)
+            .map(byte => parseInt(byte, 16).toString(2).padStart(8, "0"))
+            .join("");
     }
-    // horizontal line
-    points += `${x + bitWidth},${level} `;
-    x += bitWidth;
-    lastLevel = level;
-  });
 
-  // Duplicate the wave for scrolling
-  let duplicatedPoints = points + points;
+    function generateWaveform(protocol, dataBits) {
+        let lines = [];
 
-  return `
-    <svg width="${x * 2}" height="40" xmlns="http://www.w3.org/2000/svg">
-      <polyline points="${duplicatedPoints}" stroke="#58a6ff" stroke-width="2" fill="none" />
-    </svg>
-  `;
-}
+        if (protocol === "i2c") {
+            // Two lines: SCL and SDA
+            let scl = [];
+            let sda = [];
+
+            // Start condition: SDA goes low while SCL high
+            scl.push(1); sda.push(1);
+            scl.push(1); sda.push(0);
+
+            for (let bit of dataBits) {
+                // Clock low, data stable
+                scl.push(0); sda.push(parseInt(bit));
+                // Clock high, data stable
+                scl.push(1); sda.push(parseInt(bit));
+            }
+
+            // Stop condition: SDA high while SCL high
+            scl.push(1); sda.push(1);
+
+            lines.push({ name: "SCL", data: scl });
+            lines.push({ name: "SDA", data: sda });
+        }
+
+        else if (protocol === "spi") {
+            // Four lines: SCLK, MOSI, MISO, CS
+            let sclk = [];
+            let mosi = [];
+            let miso = [];
+            let cs = [];
+
+            cs.push(1); // inactive high
+            cs.push(0); // select
+
+            for (let bit of dataBits) {
+                sclk.push(0); mosi.push(parseInt(bit)); miso.push(0); cs.push(0);
+                sclk.push(1); mosi.push(parseInt(bit)); miso.push(0); cs.push(0);
+            }
+
+            cs.push(1); // deselect
+
+            lines.push({ name: "SCLK", data: sclk });
+            lines.push({ name: "MOSI", data: mosi });
+            lines.push({ name: "MISO", data: miso });
+            lines.push({ name: "CS", data: cs });
+        }
+
+        else if (protocol === "uart") {
+            // One line: TX
+            let tx = [];
+            tx.push(1); // idle high
+            tx.push(0); // start bit
+
+            for (let bit of dataBits) {
+                tx.push(parseInt(bit));
+            }
+
+            tx.push(1); // stop bit
+            lines.push({ name: "TX", data: tx });
+        }
+
+        return lines;
+    }
+
+    function drawWaveform(lines) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = "14px Arial";
+        ctx.fillStyle = "#fff";
+
+        const lineHeight = canvas.height / (lines.length + 1);
+        let pixelsPerBit = 40;
+
+        lines.forEach((line, i) => {
+            let yBase = lineHeight * (i + 1);
+            ctx.fillText(line.name, 10, yBase - 10);
+
+            ctx.beginPath();
+            ctx.strokeStyle = "#00e0ff";
+            ctx.lineWidth = 2;
+
+            let x = 100 - scrollOffset;
+            let prevLevel = line.data[0];
+
+            ctx.moveTo(x, yBase - prevLevel * 20);
+
+            for (let bit of line.data) {
+                ctx.lineTo(x, yBase - bit * 20);
+                x += pixelsPerBit;
+            }
+
+            ctx.stroke();
+        });
+    }
+
+    function animate() {
+        scrollOffset -= 2;
+        if (scrollOffset < -40) scrollOffset = 0; // loop smoothly
+        drawWaveform(waveformData);
+        requestAnimationFrame(animate);
+    }
+
+    goBtn.addEventListener("click", () => {
+        protocol = protocolSelect.value;
+        let raw = dataInput.value.trim();
+
+        let bits;
+        if (/^[0-1]+$/.test(raw)) {
+            bits = raw;
+        } else {
+            bits = hexToBin(raw);
+        }
+
+        waveformData = generateWaveform(protocol, bits);
+        scrollOffset = 0;
+    });
+
+    animate();
+});
