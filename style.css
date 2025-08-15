@@ -71,7 +71,56 @@ canvas {
     font-size: 12px;
     fill: white;
 }
+/* Clock waveform container */
+#waveform {
+    width: 100%;
+    height: 150px;
+    background: 
+        repeating-linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0.05) 0px,
+            rgba(255, 255, 255, 0.05) 20px
+        ),
+        repeating-linear-gradient(
+            to top,
+            rgba(255, 255, 255, 0.05) 0px,
+            rgba(255, 255, 255, 0.05) 20px
+        );
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
 
+/* The clock waveform line */
+.clock-signal {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 2px;
+    width: 200%;
+    background: none;
+    border-top: 2px solid #00ff99;
+    animation: move-clock 1s linear infinite;
+}
+
+/* Clock edges (high/low steps) */
+.clock-signal::before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 200%;
+    background-image: 
+        linear-gradient(to right, 
+            transparent 0%, transparent 25%, #00ff99 25%, #00ff99 50%, 
+            transparent 50%, transparent 75%, #00ff99 75%, #00ff99 100%);
+    background-size: 40px 100%;
+}
+
+/* Move clock waveform left-to-right */
+@keyframes move-clock {
+    from { transform: translateX(0); }
+    to { transform: translateX(-40px); }
+}
 /* Animation for waveform shimmer effect (unchanged premium feel) */
 @keyframes shimmer {
     0% { background-position: 200px 0; }
