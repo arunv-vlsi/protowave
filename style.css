@@ -84,7 +84,14 @@ header h1 {
   left: 0;
   animation: scrollWave 2s linear infinite;
 }
-
+#waveform-canvas {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  display: block;
+  margin: 20px auto;
+}
 @keyframes scrollWave {
   from { transform: translateX(-100%); }
   to { transform: translateX(100%); }
