@@ -1,73 +1,68 @@
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #1a1a1a, #222);
-    color: #f5f5f5;
-    text-align: center;
+  font-family: Arial, sans-serif;
+  background: #0d1117;
+  color: white;
+  margin: 0;
+  padding: 0;
 }
 
 header {
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.3rem;
-}
-
-main {
-    padding: 2rem;
+  text-align: center;
+  padding: 1em;
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 .controls {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+  text-align: center;
+  padding: 1em;
 }
 
 select, input, button {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    border: none;
-    font-size: 1rem;
-    outline: none;
-}
-
-select, input {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
+  margin: 0.5em;
+  padding: 0.5em;
+  border-radius: 8px;
+  border: none;
 }
 
 button {
-    background: #ff6600;
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-button:hover {
-    background: #ff8533;
+  background: #238636;
+  color: white;
+  cursor: pointer;
 }
 
 #waveform-container {
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 1rem;
-    min-height: 250px;
-    overflow-x: auto;
+  margin: 2em auto;
+  width: 90%;
+  overflow-x: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
 }
 
-.placeholder {
-    color: rgba(255,255,255,0.6);
+.signal-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-footer {
-    margin-top: 2rem;
-    padding: 1rem;
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.6);
+.signal-name {
+  width: 60px;
+  text-align: right;
+  padding-right: 10px;
+  font-weight: bold;
+}
+
+.waveform {
+  flex: 1;
+  overflow: hidden;
+}
+
+.waveform svg {
+  animation: scrollWave 2s linear infinite;
+}
+
+@keyframes scrollWave {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
