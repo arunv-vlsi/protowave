@@ -86,6 +86,6 @@ header h1 {
 }
 
 @keyframes scrollWave {
-  from { transform: translateX(0); }
-  to { transform: translateX(-500%); }
+  from { transform: translateX(-500%); }
+  to { transform: translateX(0); }
 }
