@@ -17,6 +17,18 @@ function generateWaveform(protocol, data) {
     signals = ["TX", "RX"];
   }
 
+  // Convert hex/binary input to binary string
+  let binStr = "";
+  if (/^[01]+$/.test(data)) {
+    binStr = data;
+  } else if (/^[0-9A-Fa-f]+$/.test(data)) {
+    binStr = data.split("").map(c =>
+      parseInt(c, 16).toString(2).padStart(4, "0")
+    ).join("");
+  } else {
+    binStr = "10101010"; // fallback
+  }
+
   signals.forEach(sig => {
     const row = document.createElement("div");
     row.className = "signal-row";
@@ -27,7 +39,7 @@ function generateWaveform(protocol, data) {
 
     const waveformDiv = document.createElement("div");
     waveformDiv.className = "waveform";
-    waveformDiv.innerHTML = createScrollingWave();
+    waveformDiv.innerHTML = createScrollingWave(binStr);
 
     row.appendChild(name);
     row.appendChild(waveformDiv);
@@ -35,13 +47,34 @@ function generateWaveform(protocol, data) {
   });
 }
 
-function createScrollingWave() {
+function createScrollingWave(binaryData) {
+  const bitWidth = 20; // px per bit
+  const mid = 20; // y center
+  const high = 0;
+  const low = 40;
+
+  let points = "";
+  let x = 0;
+  let lastLevel = binaryData[0] === "1" ? high : low;
+
+  binaryData.split("").forEach(bit => {
+    let level = bit === "1" ? high : low;
+    // vertical transition
+    if (level !== lastLevel) {
+      points += `${x},${lastLevel} ${x},${level} `;
+    }
+    // horizontal line
+    points += `${x + bitWidth},${level} `;
+    x += bitWidth;
+    lastLevel = level;
+  });
+
+  // Duplicate the wave for scrolling
+  let duplicatedPoints = points + points;
+
   return `
-    <svg width="200%" height="40" xmlns="http://www.w3.org/2000/svg">
-      <polyline points="0,20 20,20 20,0 40,0 40,20 60,20 60,0 80,0 80,20 100,20" 
-        stroke="#58a6ff" stroke-width="2" fill="none" />
-      <polyline points="100,20 120,20 120,0 140,0 140,20 160,20 160,0 180,0 180,20 200,20" 
-        stroke="#58a6ff" stroke-width="2" fill="none" />
+    <svg width="${x * 2}" height="40" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="${duplicatedPoints}" stroke="#58a6ff" stroke-width="2" fill="none" />
     </svg>
   `;
 }
