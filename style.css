@@ -1,126 +1,79 @@
-/* ============ Base Styles ============ */
 body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
     color: white;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 30px;
+    margin: 0;
+    padding: 0;
 }
 
-/* Container with glassy effect */
 .container {
     max-width: 900px;
-    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.glass-card {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 30px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-/* ============ Title ============ */
 h1 {
     text-align: center;
-    font-size: 2.2em;
-    font-weight: bold;
-    letter-spacing: 1px;
-    margin-bottom: 25px;
+    color: #fff;
 }
 
-/* ============ Input Section ============ */
 .input-group {
     margin: 15px 0;
 }
 
 label {
-    font-weight: 500;
     display: block;
     margin-bottom: 5px;
+    font-weight: bold;
 }
 
-select, input[type="text"] {
+select,
+input {
     width: 100%;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 8px;
+    border-radius: 5px;
     border: none;
     outline: none;
-    font-size: 1em;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     color: white;
 }
 
-select option {
-    background: #203a43;
-    color: white;
-}
-
-::placeholder {
-    color: rgba(255,255,255,0.6);
-}
-
-/* ============ Button ============ */
 button {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    font-size: 1.1em;
-    font-weight: bold;
+    background: linear-gradient(to right, #4facfe, #00f2fe);
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(90deg, #4facfe, #00f2fe);
-    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    color: white;
+    font-size: 1em;
 }
 
 button:hover {
-    background: linear-gradient(90deg, #00f2fe, #4facfe);
+    background: linear-gradient(to right, #00f2fe, #4facfe);
 }
 
-/* ============ Waveform Section ============ */
 .waveform-container {
-    margin-top: 30px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 12px;
+    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.3);
     padding: 15px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    position: relative;
 }
 
 canvas {
     display: block;
     width: 100%;
-    height: auto;
+    height: 300px;
 }
 
-/* Signal names on the left */
+/* Signal labels */
 .signal-label {
-    font-size: 0.9em;
+    font-size: 12px;
     fill: white;
 }
 
-/* Optional animated shimmer effect for premium feel */
+/* Animation for waveform shimmer effect (unchanged premium feel) */
 @keyframes shimmer {
-    0% { background-position: -200px 0; }
-    100% { background-position: 200px 0; }
-}
-
-.glass-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: 20px;
-    pointer-events: none;
-    background: linear-gradient(120deg, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.15) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 4s infinite;
+    0% { background-position: 200px 0; }
+    100% { background-position: -200px 0; }
 }
