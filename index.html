@@ -2,38 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Protocol Waveform Visualizer</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtoWave</title>
+
+    <!-- Link separate CSS files -->
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="buttons.css">
+    <link rel="stylesheet" href="waveform.css">
 </head>
 <body>
-    <div class="container glass-card">
-        <h1>Protocol Waveform Visualizer</h1>
+    <div class="container">
+        <h1>ProtoWave</h1>
 
-        <div class="input-group">
-            <label for="protocol">Select Protocol:</label>
-            <select id="protocol">
-                <option value="i2c">I²C</option>
-                <option value="spi">SPI</option>
-                <option value="uart">UART</option>
-            </select>
-        </div>
+        <!-- Controls -->
+        <select>
+            <option value="i2c">I2C</option>
+            <option value="spi">SPI</option>
+            <option value="uart">UART</option>
+        </select>
+        <input type="text" placeholder="Enter binary/hex data">
+        <button onclick="createClockWaveform()">Go</button>
 
-        <div class="input-group">
-            <label for="data-input">Enter Data (hex or binary):</label>
-            <input type="text" id="data-input" placeholder="e.g. A5 or 10100101">
-        </div>
-
-        <button id="go-btn">Go</button>
-
-        <!-- NEW canvas for waveform -->
-        <!div class="waveform-container">
-            <!canvas id="waveform-canvas" width="800" height="300"></!canvas>
-        <!/div>
-        <div id="waveform">
-            <div class="clock-signal"></div>
-        </div>
+        <!-- Waveform display -->
+        <div id="waveform"></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- JS for waveform -->
+    <script src="waveform.js"></script>
 </body>
 </html>
