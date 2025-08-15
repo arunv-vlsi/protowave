@@ -1,98 +1,126 @@
+/* ============ Base Styles ============ */
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #0d1117;
-  color: #c9d1d9;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 30px;
 }
 
-header {
-  background: #161b22;
-  padding: 20px;
-  text-align: center;
-  border-bottom: 1px solid #30363d;
+/* Container with glassy effect */
+.container {
+    max-width: 900px;
+    width: 100%;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2em;
-  color: #58a6ff;
+.glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  padding: 15px;
-  background: #161b22;
-  border-bottom: 1px solid #30363d;
+/* ============ Title ============ */
+h1 {
+    text-align: center;
+    font-size: 2.2em;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 25px;
 }
 
-.controls select,
-.controls input,
-.controls button {
-  padding: 8px;
-  border-radius: 5px;
-  border: none;
-  font-size: 1em;
+/* ============ Input Section ============ */
+.input-group {
+    margin: 15px 0;
 }
 
-.controls select,
-.controls input {
-  background: #21262d;
-  color: #c9d1d9;
+label {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
 }
 
-.controls button {
-  background: #238636;
-  color: white;
-  cursor: pointer;
+select, input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
 }
 
-.controls button:hover {
-  background: #2ea043;
+select option {
+    background: #203a43;
+    color: white;
 }
 
-#waveform-container {
-  padding: 20px;
+::placeholder {
+    color: rgba(255,255,255,0.6);
 }
 
-.signal-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
+/* ============ Button ============ */
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.signal-name {
-  width: 60px;
-  font-weight: bold;
-  color: #f0f6fc;
-  margin-right: 15px;
+button:hover {
+    background: linear-gradient(90deg, #00f2fe, #4facfe);
 }
 
-.waveform {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  height: 40px;
+/* ============ Waveform Section ============ */
+.waveform-container {
+    margin-top: 30px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 15px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
-.waveform svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  animation: scrollWave 2s linear infinite;
+canvas {
+    display: block;
+    width: 100%;
+    height: auto;
 }
-#waveform-canvas {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  display: block;
-  margin: 20px auto;
+
+/* Signal names on the left */
+.signal-label {
+    font-size: 0.9em;
+    fill: white;
 }
-@keyframes scrollWave {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
+
+/* Optional animated shimmer effect for premium feel */
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 20px;
+    pointer-events: none;
+    background: linear-gradient(120deg, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.15) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 4s infinite;
 }
