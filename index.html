@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Protowave</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Protocol Waveform Visualizer</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Protowave</h1>
-    <p>Protocol Waveform Visualizer</p>
-  </header>
+    <div class="container glass-card">
+        <h1>Protocol Waveform Visualizer</h1>
 
-  <main>
-    <div class="controls">
-      <select id="protocol">
-        <option value="i2c">I²C</option>
-        <option value="spi">SPI</option>
-        <option value="uart">UART</option>
-      </select>
-      <input type="text" id="dataInput" placeholder="Enter HEX or Binary">
-      <button id="goBtn">Go</button>
+        <div class="input-group">
+            <label for="protocol">Select Protocol:</label>
+            <select id="protocol">
+                <option value="i2c">I²C</option>
+                <option value="spi">SPI</option>
+                <option value="uart">UART</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="data-input">Enter Data (hex or binary):</label>
+            <input type="text" id="data-input" placeholder="e.g. A5 or 10100101">
+        </div>
+
+        <button id="go-btn">Go</button>
+
+        <!-- NEW canvas for waveform -->
+        <div class="waveform-container">
+            <canvas id="waveform-canvas" width="800" height="300"></canvas>
+        </div>
     </div>
 
-    <div id="waveform-container"></div>
-  </main>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
