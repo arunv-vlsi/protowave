@@ -22,7 +22,7 @@ document.getElementById("goBtn").addEventListener("click", () => {
 
 /**
  * Function to draw waveform on the canvas
- * @param {Array} signal - Array of bits (0s and 1s) representing the waveform
+ //* @param {Array} signal - Array of bits (0s and 1s) representing the waveform
  */
 function drawWaveform(signal) {
   // Clear old waveform
