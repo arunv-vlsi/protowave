@@ -12,7 +12,7 @@ function drawClock(cycles) {
   let x = 20;
   let yHigh = 40;   // clock high level
   let yLow  = 70;   // clock low level
-  let step = 40;    // one half cycle width
+  let step = 25;    // one half cycle width
 
   ctx.beginPath();
   ctx.moveTo(x, yLow);
