@@ -1,3 +1,29 @@
+// Get the canvas element from HTML
+const canvas = document.getElementById("waveCanvas");
+// Get the 2D rendering context for drawing on the canvas
+const ctx = canvas.getContext("2d");
+// Set canvas size (fixed width and height)
+canvas.width = 760;
+canvas.height = 250;
+
+// Add a click event listener to the "GO" button
+document.getElementById("goBtn").addEventListener("click", () => {
+  // Get selected protocol from dropdown (I2C, SPI, UART, etc.)
+  const protocol = document.getElementById("protocol").value;
+  // Get input data (user enters something like 101010)
+  const inputData = document.getElementById("inputData").value;
+
+  // Generate waveform data (array of 1s and 0s) using the protocol rules
+  const signal = generateProtocolWave(protocol, inputData);
+
+  // Call function to draw waveform on canvas
+  drawWaveform(signal);
+});
+
+/**
+ * Function to draw waveform on the canvas
+ * @param {Array} signal - Array of bits (0s and 1s) representing the waveform
+ */
 function drawWaveform(signal) {
   // Clear old waveform
   ctx.clearRect(0, 0, canvas.width, canvas.height);
