@@ -1,32 +1,42 @@
-const canvas = document.getElementById("waveCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = 760;
-canvas.height = 250;
-
-document.getElementById("goBtn").addEventListener("click", () => {
-  const protocol = document.getElementById("protocol").value;
-  const inputData = document.getElementById("inputData").value;
-
-  const signal = generateProtocolWave(protocol, inputData);
-  drawWaveform(signal);
-});
-
 function drawWaveform(signal) {
+  // Clear old waveform
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Set waveform style
   ctx.strokeStyle = "#22c55e";
   ctx.lineWidth = 2;
 
-  let x = 20;
-  let yMid = canvas.height / 2;
-  let step = 40;
+  // Drawing parameters
+  let x = 20;                        // starting X
+  let yMid = canvas.height / 2;      // baseline
+  let step = 40;                     // horizontal step per bit
+  let high = yMid - 50;              // Y position for logic 1
+  let low  = yMid;                   // Y position for logic 0
 
+  // Start path
   ctx.beginPath();
-  ctx.moveTo(x, yMid - (signal[0] ? 50 : 0));
 
-  signal.forEach((bit, i) => {
-    ctx.lineTo(x + step, yMid - (bit ? 50 : 0));
+  // Start at first signal level
+  let prevBit = signal[0];
+  ctx.moveTo(x, prevBit ? high : low);
+
+  // Loop over bits
+  for (let i = 1; i < signal.length; i++) {
+    let currBit = signal[i];
+
+    if (currBit !== prevBit) {
+      // If signal changes, draw vertical transition first
+      ctx.lineTo(x, currBit ? high : low);
+    }
+
+    // Then draw horizontal line one step forward
     x += step;
-  });
+    ctx.lineTo(x, currBit ? high : low);
 
+    // Update previous bit
+    prevBit = currBit;
+  }
+
+  // Render on canvas
   ctx.stroke();
 }
