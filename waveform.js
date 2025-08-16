@@ -1,23 +1,32 @@
-/* waveform.js */
-/* ---------- JAVASCRIPT FOR CLOCK WAVEFORM ---------- */
+const canvas = document.getElementById("waveCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = 760;
+canvas.height = 250;
 
-// Function to create and display the clock waveform
-function createClockWaveform() {
-    // Get the waveform container
-    const waveformContainer = document.getElementById('waveform');
+document.getElementById("goBtn").addEventListener("click", () => {
+  const protocol = document.getElementById("protocol").value;
+  const inputData = document.getElementById("inputData").value;
 
-    // Clear any existing waveform
-    waveformContainer.innerHTML = '';
+  const signal = generateProtocolWave(protocol, inputData);
+  drawWaveform(signal);
+});
 
-    // Create clock signal element
-    const clockSignal = document.createElement('div');
-    clockSignal.classList.add('clock-signal');
+function drawWaveform(signal) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#22c55e";
+  ctx.lineWidth = 2;
 
-    // Append clock signal to waveform container
-    waveformContainer.appendChild(clockSignal);
+  let x = 20;
+  let yMid = canvas.height / 2;
+  let step = 40;
+
+  ctx.beginPath();
+  ctx.moveTo(x, yMid - (signal[0] ? 50 : 0));
+
+  signal.forEach((bit, i) => {
+    ctx.lineTo(x + step, yMid - (bit ? 50 : 0));
+    x += step;
+  });
+
+  ctx.stroke();
 }
-
-// Run when the page loads
-window.onload = function() {
-    createClockWaveform();
-};
