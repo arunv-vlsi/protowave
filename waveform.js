@@ -39,7 +39,7 @@ function drawWaveform(signal) {
   let x = 20;                        // starting X
   let yMid = canvas.height / 2;      // baseline
   let step = 40;                     // horizontal step per bit
-  let high = yMid - 50;              // Y position for logic 1
+  let high = yMid - 20;              // Y position for logic 1
   let low  = yMid;                   // Y position for logic 0
 
   // Start path
