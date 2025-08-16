@@ -45,6 +45,7 @@ function drawWaveform(signal) {
   // Start at first signal level
   let prevBit = signal[0];
   ctx.moveTo(x, prevBit ? high : low);
+  ctx.lineTo(x, prevBit ? high : low);
 
   // Loop over bits
   for (let i = 1; i < signal.length; i++) {
