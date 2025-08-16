@@ -18,6 +18,9 @@ document.getElementById("goBtn").addEventListener("click", () => {
 
   // Call function to draw waveform on canvas
   drawWaveform(signal);
+
+  // Draw clock aligned with signal length
+  drawClock(signal.length)
 });
 
 /**
