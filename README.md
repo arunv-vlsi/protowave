@@ -4,4 +4,4 @@ proto-wave/
 │── button.css
 │── waveform.js
 │── protocol.js
-│── clock.js    
+│── clock.js        # NEW file for clock waveform
