@@ -1,37 +1,17 @@
 /**
- * Draws a clock waveform on the same canvas
- * @param {number} cycles - number of clock cycles to draw
+ * Generate a clock waveform (0/1 array) with the given number of data bits
+ * Each data bit gets one full clock cycle (High + Low).
+ * @param {number} length - number of data bits to align the clock with
+ * @returns {Array} - Array of 0s and 1s representing the clock waveform
  */
-function drawClock(cycles) {
-  // Clear only top portion for clock (optional, keeps data separate)
-  ctx.clearRect(0, 0, canvas.width, 80);
+function clockArray(length) {
+  let clk = []; // store clock values
 
-  ctx.strokeStyle = "#3b82f6"; // blue color for clock
-  ctx.lineWidth = 2;
-
-  let x = 20;
-  let yHigh = 40;   // clock high level
-  let yLow  = 70;   // clock low level
-  let step = 25;    // one half cycle width
-
-  ctx.beginPath();
-  ctx.moveTo(x, yLow);
-
-  for (let i = 0; i < cycles; i++) {
-    // rising edge
-    ctx.lineTo(x, yHigh);
-    x += step;
-
-    // high phase
-    ctx.lineTo(x, yHigh);
-
-    // falling edge
-    ctx.lineTo(x, yLow);
-    x += step;
-
-    // low phase
-    ctx.lineTo(x, yLow);
+  // Loop for twice the number of data bits (because each bit = 1 high + 1 low)
+  for (let i = 0; i < length * 2; i++) {
+    // Push 0 for even index, 1 for odd index → creates square wave
+    clk.push(i % 2);
   }
 
-  ctx.stroke();
+  return clk; // return clock waveform
 }
