@@ -1,30 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ProtoWave</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="button.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protowave - Waveform Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>ProtoWave</h1>
-    <div class="controls">
-      <select id="protocol">
-        <option value="i2c">I2C</option>
-        <option value="spi">SPI</option>
-        <option value="uart">UART</option>
-      </select>
-      <input type="text" id="inputData" placeholder="Enter data (e.g. 101010)">
-      <button id="goBtn" class="btn">GO</button>
-    </div>
-    <div class="waveform">
-      <canvas id="waveCanvas"></canvas>
-        <div id="waveform"></div>
-    </div>
-  </div>
-  <script src="protocol.js"></script>
-  <script src="clock.js"></script>   <!-- add clock file here -->
-  <script src="waveform.js"></script>
+
+    <header>
+        <h1>Protowave</h1>
+        <p>A Visual Protocol Waveform Generator</p>
+    </header>
+
+    <main>
+        <section class="controls">
+            <div class="control-group">
+                <label for="protocol-select">Protocol</label>
+                <select id="protocol-select">
+                    <option value="uart">UART</option>
+                    <option value="i2c">I2C</option>
+                    <option value="spi">SPI</option>
+                    <option value="pcie">PCIe (Simplified)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Data Format</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="format-toggle" class="toggle-input">
+                    <label for="format-toggle" class="toggle-label">
+                        <span class="toggle-text left">Binary</span>
+                        <span class="toggle-text right">Hex</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group data-input-group">
+                <label for="data-input">Input Data</label>
+                <input type="text" id="data-input" placeholder="e.g., 10110101">
+            </div>
+
+            <button id="generate-btn">Generate</button>
+        </section>
+
+        <section class="waveform-container">
+            <canvas id="waveformCanvas" width="1200" height="600"></canvas>
+            <div id="placeholder-text">
+                <h2>Your Waveform Appears Here</h2>
+                <p>Select a protocol, enter your data, and click 'Generate' to begin.</p>
+            </div>
+             <div id="error-message" class="hidden"></div>
+        </section>
+
+        <section class="info-section">
+            <h3>About Protowave</h3>
+            <p>This is an educational tool designed to help visualize how common digital communication protocols transmit data. The waveforms are simplified representations to illustrate the core concepts of each protocol. For instance, I2C ACK/NACK bits are assumed as ACK, and PCIe is a highly conceptual view of its physical layer signaling.</p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Protowave. Created for educational purposes.</p>
+    </footer>
+
+    <script src="script.js"></script>
+
 </body>
 </html>
