@@ -1,53 +1,237 @@
+:root {
+    --bg-color: #121826;
+    --primary-color: #1F2937;
+    --secondary-color: #374151;
+    --accent-color: #38BDF8;
+    --text-color: #E5E7EB;
+    --text-muted-color: #9CA3AF;
+    --success-color: #10B981;
+    --error-color: #F87171;
+    --font-primary: 'Poppins', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-  background: #0f172a;
-  color: #f8fafc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    font-family: var(--font-primary);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
 }
 
-.container {
-  background: #1e293b;
-  padding: 20px;
-  border-radius: 12px;
-  width: 800px;
-  box-shadow: 0px 8px 20px rgba(0,0,0,0.6);
+header {
+    text-align: center;
+    padding: 2rem 1rem;
+    border-bottom: 1px solid var(--secondary-color);
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #38bdf8;
+header h1 {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+header p {
+    color: var(--text-muted-color);
+    font-size: 1.1rem;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
 }
 
 .controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 1.5rem;
+    padding: 2rem;
+    background-color: var(--primary-color);
+    border-radius: 12px;
+    margin-bottom: 2rem;
 }
 
-input, select {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #334155;
-  background: #0f172a;
-  color: #f8fafc;
-  font-size: 14px;
+.control-group {
+    display: flex;
+    flex-direction: column;
 }
 
-.waveform {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 10px;
+.control-group label {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+    font-weight: 600;
 }
 
-canvas {
-  width: 100%;
-  height: 300px;
+/* Custom Select, Input, and Button Styles */
+select, input[type="text"] {
+    background-color: var(--secondary-color);
+    border: 1px solid #4B5563;
+    color: var(--text-color);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    min-width: 200px;
+    transition: all 0.2s ease;
+}
+
+select:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
+}
+
+.data-input-group {
+    flex-grow: 1;
+}
+
+#data-input {
+    width: 100%;
+}
+
+button#generate-btn {
+    background: linear-gradient(90deg, #38BDF8, #0EA5E9);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+button#generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 180px;
+    height: 48px; /* Same as input height */
+}
+.toggle-input {
+    display: none;
+}
+.toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    height: 100%;
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+.toggle-text {
+    color: var(--text-muted-color);
+    font-weight: 600;
+    z-index: 2;
+    transition: color 0.3s ease;
+}
+.toggle-label::before {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 90%;
+    top: 5%;
+    left: 2.5%;
+    background-color: var(--accent-color);
+    border-radius: 6px;
+    transition: transform 0.3s ease;
+    z-index: 1;
+}
+.toggle-input:checked + .toggle-label::before {
+    transform: translateX(95%);
+}
+.toggle-input:checked + .toggle-label .left {
+    color: var(--text-muted-color);
+}
+.toggle-input:checked + .toggle-label .right {
+    color: white;
+}
+.toggle-input:not(:checked) + .toggle-label .left {
+    color: white;
+}
+
+/* Waveform Display */
+.waveform-container {
+    position: relative;
+    background-color: var(--primary-color);
+    padding: 1rem;
+    border-radius: 12px;
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#waveformCanvas {
+    background-color: #0c101a;
+    border-radius: 8px;
+    width: 100%;
+    height: auto;
+}
+
+#placeholder-text {
+    text-align: center;
+    color: var(--text-muted-color);
+}
+
+#placeholder-text h2 {
+    color: var(--text-color);
+}
+
+.hidden {
+    display: none !important;
+}
+
+#error-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(248, 113, 113, 0.1);
+    color: var(--error-color);
+    padding: 1rem 2rem;
+    border: 1px solid var(--error-color);
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Info and Footer */
+.info-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background-color: var(--primary-color);
+    border-radius: 12px;
+    color: var(--text-muted-color);
+}
+
+.info-section h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-top: 2rem;
+    color: var(--text-muted-color);
+    font-size: 0.9rem;
 }
