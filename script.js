@@ -109,13 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText(label, PADDING - 10, y + 5);
     }
     
-    function drawBit(x, y, bit, color) {
+    function drawBit(x, y, bit, color, width = BIT_WIDTH) {
         const yLevel = y - (bit === '1' ? SIGNAL_HEIGHT : 0);
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x, yLevel);
-        ctx.lineTo(x + BIT_WIDTH, yLevel);
+        ctx.lineTo(x + width, yLevel);
         ctx.stroke();
     }
     
@@ -130,52 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.stroke();
     }
 
-    // --- PROTOCOL DRAWING FUNCTIONS ---
-
+    // =======================================================================
+    // ==         DEFINITIVELY CORRECTED I2C WAVEFORM FUNCTION              ==
+    // =======================================================================
     /**
-     * UART: Idle high. Start bit (low), 8 data bits (LSB first), Stop bit (high).
-     */
-    function drawUartWaveform(binaryData) {
-        const dataBits = (binaryData.padEnd(8, '0')).slice(0, 8).split('').reverse().join(''); // LSB first
-        const frame = `0${dataBits}1`; // Start (0), Data, Stop (1)
-        const numBits = frame.length;
-        
-        canvas.width = PADDING * 2 + numBits * BIT_WIDTH;
-        ctx.font = '14px "Roboto Mono"'; // Reset font after canvas resize
-
-        const y = V_SPACING;
-        let x = PADDING;
-
-        drawSignalLabel("TX", y);
-        
-        let lastBit = '1'; // UART is idle high
-
-        // Draw idle state before start
-        drawBit(x - BIT_WIDTH, y, '1', LINE_COLOR);
-        
-        for (let i = 0; i < numBits; i++) {
-            const bit = frame[i];
-            drawTransition(x, y, lastBit, bit, HIGH_COLOR);
-            drawBit(x, y, bit, HIGH_COLOR);
-            
-            // Annotations
-            ctx.fillStyle = DATA_ANNOTATION_COLOR;
-            ctx.textAlign = 'center';
-            if (i === 0) ctx.fillText('Start', x + BIT_WIDTH / 2, y + 20);
-            else if (i === numBits - 1) ctx.fillText('Stop', x + BIT_WIDTH / 2, y + 20);
-            else ctx.fillText(dataBits[i-1], x + BIT_WIDTH / 2, y - SIGNAL_HEIGHT - 10);
-
-            x += BIT_WIDTH;
-            lastBit = bit;
-        }
-        
-        // Draw idle state after stop
-        drawBit(x, y, '1', LINE_COLOR);
-    }
-
-    /**
-     * I2C: Coordinated SCL and SDA lines.
-     * Simplified: Start, 7-bit addr (from data), R/W=0, ACK, 8-bit data, ACK, Stop.
+     * I2C: Draws Start, Data/ACK, and Stop conditions ensuring SDA only
+     * changes when SCL is low, and is stable when SCL is high.
      */
     function drawI2cWaveform(binaryData) {
         const address = binaryData.slice(0, 7).padEnd(7, '0');
@@ -186,82 +146,117 @@ document.addEventListener('DOMContentLoaded', () => {
         const sdaSequence = `${address}${rwBit}${ackBit}${data}${ackBit}`;
         const numClockCycles = sdaSequence.length;
         
-        canvas.width = PADDING * 2 + (numClockCycles + 2) * BIT_WIDTH;
+        canvas.width = PADDING * 2 + (numClockCycles + 3) * BIT_WIDTH;
         ctx.font = '14px "Roboto Mono"';
 
         const yScl = V_SPACING;
         const ySda = V_SPACING * 2;
         let x = PADDING;
+        let lastSda = '1'; // Bus is idle high
 
         drawSignalLabel("SCL", yScl);
         drawSignalLabel("SDA", ySda);
 
+        // --- Idle State ---
+        drawBit(x, yScl, '1', LINE_COLOR);
+        drawBit(x, ySda, '1', LINE_COLOR);
+        x += BIT_WIDTH;
+
         // --- Start Condition ---
-        // SCL is high, SDA goes from high to low
-        drawBit(x - BIT_WIDTH, yScl, '1', LINE_COLOR);
-        drawBit(x - BIT_WIDTH, ySda, '1', LINE_COLOR);
-        drawTransition(x, ySda, '1', '0', HIGH_COLOR);
-        drawBit(x, yScl, '1', HIGH_COLOR);
-        drawBit(x, ySda, '0', HIGH_COLOR);
+        // While SCL is high, SDA transitions from high to low.
+        drawBit(x, yScl, '1', HIGH_COLOR); // SCL stays high
+        drawBit(x, ySda, '1', HIGH_COLOR, BIT_WIDTH / 2); // SDA high for first half
+        drawTransition(x + BIT_WIDTH / 2, ySda, '1', '0', HIGH_COLOR); // SDA transitions low
+        drawBit(x + BIT_WIDTH / 2, ySda, '0', HIGH_COLOR, BIT_WIDTH / 2); // SDA low for second half
         ctx.fillStyle = DATA_ANNOTATION_COLOR;
         ctx.textAlign = 'center';
         ctx.fillText('Start', x + BIT_WIDTH / 2, ySda + 20);
-        let lastSda = '0';
         x += BIT_WIDTH;
-
+        lastSda = '0';
+        
         // --- Data Transfer ---
         for (let i = 0; i < numClockCycles; i++) {
             const sdaBit = sdaSequence[i];
             
-            // SCL goes low
-            drawTransition(x, yScl, '1', '0', CLOCK_COLOR);
-            drawBit(x, yScl, '0', CLOCK_COLOR);
-            // SDA changes while SCL is low
+            // 1. Draw SDA transition and stable low-period level (while SCL is low)
             drawTransition(x, ySda, lastSda, sdaBit, HIGH_COLOR);
-            drawBit(x, ySda, sdaBit, HIGH_COLOR);
-            x += BIT_WIDTH / 2;
+            drawBit(x, ySda, sdaBit, HIGH_COLOR, BIT_WIDTH / 2);
 
-            // SCL goes high
-            drawTransition(x, yScl, '0', '1', CLOCK_COLOR);
-            drawBit(x, yScl, '1', CLOCK_COLOR);
-            drawBit(x, ySda, sdaBit, HIGH_COLOR); // Data stable while SCL is high
+            // 2. Draw the SCL clock pulse
+            ctx.strokeStyle = CLOCK_COLOR;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, yScl); // Start from low
+            ctx.lineTo(x + BIT_WIDTH / 2, yScl); // Low level
+            ctx.lineTo(x + BIT_WIDTH / 2, yScl - SIGNAL_HEIGHT); // Rising edge
+            ctx.lineTo(x + BIT_WIDTH, yScl - SIGNAL_HEIGHT); // High level
+            ctx.stroke();
+
+            // 3. Draw SDA stable high-period level (while SCL is high)
+            drawBit(x + BIT_WIDTH / 2, ySda, sdaBit, HIGH_COLOR, BIT_WIDTH / 2);
             
             // Annotations
-            ctx.fillStyle = DATA_ANNOTATION_COLOR;
-            ctx.textAlign = 'center';
             let annotation = sdaBit;
             if (i < 7) annotation = `A${6-i}`;
             else if (i === 7) annotation = 'W';
             else if (i === 8 || i === 17) annotation = 'ACK';
             else if (i > 8) annotation = `D${16-i}`;
-            ctx.fillText(annotation, x + BIT_WIDTH / 4, ySda - SIGNAL_HEIGHT - 10);
+            ctx.fillText(annotation, x + BIT_WIDTH / 2, ySda - SIGNAL_HEIGHT - 10);
 
-            x += BIT_WIDTH / 2;
+            x += BIT_WIDTH;
             lastSda = sdaBit;
         }
 
         // --- Stop Condition ---
-        // SCL is high, SDA goes from low to high
-        drawTransition(x, yScl, '1', '0', CLOCK_COLOR); // SCL low to allow SDA change
-        drawBit(x, yScl, '0', CLOCK_COLOR);
-        drawBit(x, ySda, lastSda, HIGH_COLOR);
-        x += BIT_WIDTH / 2;
-
-        drawTransition(x, yScl, '0', '1', CLOCK_COLOR); // SCL high for stop condition
-        drawBit(x, yScl, '1', CLOCK_COLOR);
-        drawTransition(x, ySda, lastSda, '1', HIGH_COLOR);
-        drawBit(x, ySda, '1', HIGH_COLOR);
-        ctx.fillText('Stop', x + BIT_WIDTH / 4, ySda + 20);
-        x += BIT_WIDTH / 2;
+        // While SCL is high, SDA transitions from low to high.
+        drawBit(x, yScl, '1', HIGH_COLOR); // SCL stays high
+        drawBit(x, ySda, lastSda, HIGH_COLOR, BIT_WIDTH / 2); // SDA holds last value
+        drawTransition(x + BIT_WIDTH / 2, ySda, lastSda, '1', HIGH_COLOR); // SDA transitions high
+        drawBit(x + BIT_WIDTH / 2, ySda, '1', HIGH_COLOR, BIT_WIDTH / 2); // SDA stays high
+        ctx.fillText('Stop', x + BIT_WIDTH / 2, ySda + 20);
+        x += BIT_WIDTH;
         
-        // Idle
+        // --- Return to Idle ---
         drawBit(x, yScl, '1', LINE_COLOR);
         drawBit(x, ySda, '1', LINE_COLOR);
     }
+    
+    // --- OTHER PROTOCOL DRAWING FUNCTIONS (Unchanged) ---
 
-    /**
-     * SPI: Mode 0 (CPOL=0, CPHA=0). Data changes on falling edge, sampled on rising edge.
-     */
+    function drawUartWaveform(binaryData) {
+        const dataBits = (binaryData.padEnd(8, '0')).slice(0, 8).split('').reverse().join(''); // LSB first
+        const frame = `0${dataBits}1`; // Start (0), Data, Stop (1)
+        const numBits = frame.length;
+        
+        canvas.width = PADDING * 2 + (numBits + 1) * BIT_WIDTH;
+        ctx.font = '14px "Roboto Mono"';
+
+        const y = V_SPACING;
+        let x = PADDING;
+
+        drawSignalLabel("TX", y);
+        let lastBit = '1';
+
+        drawBit(x - BIT_WIDTH, y, '1', LINE_COLOR);
+        
+        for (let i = 0; i < numBits; i++) {
+            const bit = frame[i];
+            drawTransition(x, y, lastBit, bit, HIGH_COLOR);
+            drawBit(x, y, bit, HIGH_COLOR);
+            
+            ctx.fillStyle = DATA_ANNOTATION_COLOR;
+            ctx.textAlign = 'center';
+            if (i === 0) ctx.fillText('Start', x + BIT_WIDTH / 2, y + 20);
+            else if (i === numBits - 1) ctx.fillText('Stop', x + BIT_WIDTH / 2, y + 20);
+            else ctx.fillText(dataBits[i-1], x + BIT_WIDTH / 2, y - SIGNAL_HEIGHT - 10);
+
+            x += BIT_WIDTH;
+            lastBit = bit;
+        }
+        
+        drawBit(x, y, '1', LINE_COLOR);
+    }
+
     function drawSpiWaveform(binaryData) {
         const data = binaryData.padEnd(8, '0').slice(0, 8);
         const numBits = data.length;
@@ -278,62 +273,56 @@ document.addEventListener('DOMContentLoaded', () => {
         drawSignalLabel("SCLK", ySclk);
         drawSignalLabel("MOSI", yMosi);
 
-        // --- Idle State ---
-        drawBit(x, ySs, '1', LINE_COLOR);
-        drawBit(x, ySclk, '0', LINE_COLOR); // CPOL=0
-        drawBit(x, yMosi, '0', LINE_COLOR);
-        x += BIT_WIDTH;
-        
-        // --- Slave Select (SS) goes low ---
-        drawTransition(x, ySs, '1', '0', HIGH_COLOR);
-        let lastMosi = '0';
-
-        // --- Data Transfer ---
-        for (let i = 0; i < numBits; i++) {
-            const mosiBit = data[i];
-
-            // SS stays low
-            drawBit(x, ySs, '0', HIGH_COLOR);
-
-            // SCLK low part (data changes)
-            drawTransition(x, ySclk, '1', '0', CLOCK_COLOR); // Falling edge
-            drawBit(x, ySclk, '0', CLOCK_COLOR);
-            drawTransition(x, yMosi, lastMosi, mosiBit, HIGH_COLOR);
-            drawBit(x, yMosi, mosiBit, HIGH_COLOR);
-            x += BIT_WIDTH / 2;
-            
-            // SCLK high part (data is sampled)
-            drawBit(x - (BIT_WIDTH/2), ySs, '0', HIGH_COLOR); // Extend SS line
-            drawTransition(x, ySclk, '0', '1', CLOCK_COLOR); // Rising edge
-            drawBit(x, ySclk, '1', CLOCK_COLOR);
-            drawBit(x, yMosi, mosiBit, HIGH_COLOR);
-            
-            ctx.fillStyle = DATA_ANNOTATION_COLOR;
-            ctx.textAlign = 'center';
-            ctx.fillText(mosiBit, x + BIT_WIDTH / 4, yMosi - SIGNAL_HEIGHT - 10);
-            
-            x += BIT_WIDTH / 2;
-            lastMosi = mosiBit;
-        }
-        
-        // --- SS goes high ---
-        drawBit(x, ySs, '0', HIGH_COLOR);
-        drawBit(x, ySclk, '0', CLOCK_COLOR);
-        drawBit(x, yMosi, lastMosi, HIGH_COLOR);
-        drawTransition(x + (BIT_WIDTH / 2), ySs, '0', '1', HIGH_COLOR);
-        x += BIT_WIDTH;
-
-        // --- Return to Idle ---
         drawBit(x, ySs, '1', LINE_COLOR);
         drawBit(x, ySclk, '0', LINE_COLOR);
         drawBit(x, yMosi, '0', LINE_COLOR);
+        x += BIT_WIDTH;
+        
+        drawTransition(x, ySs, '1', '0', HIGH_COLOR);
+        let lastMosi = '0';
+        
+        // Draw the full low period of SS
+        ctx.strokeStyle = HIGH_COLOR;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const ssY = ySs - (0 * SIGNAL_HEIGHT);
+        ctx.moveTo(x, ssY);
+        ctx.lineTo(x + numBits * BIT_WIDTH, ssY);
+        ctx.stroke();
+
+        for (let i = 0; i < numBits; i++) {
+            const mosiBit = data[i];
+
+            drawTransition(x, yMosi, lastMosi, mosiBit, HIGH_COLOR);
+            drawBit(x, yMosi, mosiBit, HIGH_COLOR);
+            
+            ctx.strokeStyle = CLOCK_COLOR;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, ySclk); // Start from low
+            ctx.lineTo(x + BIT_WIDTH / 2, ySclk); // low level
+            ctx.lineTo(x + BIT_WIDTH / 2, ySclk - SIGNAL_HEIGHT); // rising edge
+            ctx.lineTo(x + BIT_WIDTH, ySclk - SIGNAL_HEIGHT); // high level
+            ctx.moveTo(x + BIT_WIDTH, ySclk - SIGNAL_HEIGHT); // stay high
+            ctx.lineTo(x + BIT_WIDTH, ySclk); // falling edge for next cycle
+            ctx.stroke();
+            
+            ctx.fillStyle = DATA_ANNOTATION_COLOR;
+            ctx.textAlign = 'center';
+            ctx.fillText(mosiBit, x + BIT_WIDTH / 2, yMosi - SIGNAL_HEIGHT - 10);
+            
+            x += BIT_WIDTH;
+            lastMosi = mosiBit;
+        }
+        
+        drawTransition(x, ySs, '0', '1', HIGH_COLOR);
+        
+        drawBit(x, ySclk, '0', LINE_COLOR);
+        drawBit(x, yMosi, lastMosi, LINE_COLOR);
+
+        drawBit(x, ySs, '1', LINE_COLOR, BIT_WIDTH);
     }
     
-    /**
-     * PCIe (Conceptual): Shows one differential pair (e.g., PETp0/PETn0).
-     * This is a vast simplification. It just shows differential signaling.
-     * We don't implement 8b/10b or 128b/130b encoding.
-     */
     function drawPcieWaveform(binaryData) {
         const numBits = binaryData.length;
         canvas.width = PADDING * 2 + numBits * BIT_WIDTH;
@@ -354,11 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const petpBit = binaryData[i];
             const petnBit = petpBit === '1' ? '0' : '1';
             
-            // Draw PETp0 line
             drawTransition(x, yPetp, lastPetpBit, petpBit, HIGH_COLOR);
             drawBit(x, yPetp, petpBit, HIGH_COLOR);
 
-            // Draw PETn0 line (inverted)
             drawTransition(x, yPetn, lastPetnBit, petnBit, CLOCK_COLOR);
             drawBit(x, yPetn, petnBit, CLOCK_COLOR);
             
