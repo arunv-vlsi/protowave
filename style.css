@@ -7,6 +7,9 @@
     --text-muted-color: #9CA3AF;
     --success-color: #10B981;
     --error-color: #F87171;
+    --tlp-header-color: #818CF8;
+    --tlp-data-color: #F472B6;
+    --tlp-digest-color: #FBBF24;
     --font-primary: 'Poppins', sans-serif;
     --font-mono: 'Roboto Mono', monospace;
 }
@@ -59,6 +62,10 @@ main {
     margin-bottom: 2rem;
 }
 
+.control-row {
+    display: contents; /* Allows grouping without affecting flex layout */
+}
+
 .control-group {
     display: flex;
     flex-direction: column;
@@ -71,7 +78,6 @@ main {
     font-weight: 600;
 }
 
-/* Custom Select, Input, and Button Styles */
 select, input[type="text"] {
     background-color: var(--secondary-color);
     border: 1px solid #4B5563;
@@ -94,7 +100,7 @@ select:focus, input[type="text"]:focus {
     flex-grow: 1;
 }
 
-#data-input {
+#data-input, #pcie-data, #pcie-address {
     width: 100%;
 }
 
@@ -116,11 +122,10 @@ button#generate-btn:hover {
     box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
 }
 
-/* Toggle Switch */
 .toggle-switch {
     position: relative;
     width: 180px;
-    height: 48px; /* Same as input height */
+    height: 48px;
 }
 .toggle-input {
     display: none;
@@ -168,14 +173,14 @@ button#generate-btn:hover {
     color: white;
 }
 
-/* Waveform Display */
-.waveform-container {
-    position: relative;
+/* Display Containers */
+.display-container {
     background-color: var(--primary-color);
-    padding: 1rem;
+    padding: 2rem;
     border-radius: 12px;
     min-height: 400px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
@@ -201,10 +206,6 @@ button#generate-btn:hover {
 }
 
 #error-message {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background-color: rgba(248, 113, 113, 0.1);
     color: var(--error-color);
     padding: 1rem 2rem;
@@ -214,6 +215,62 @@ button#generate-btn:hover {
     font-weight: 600;
 }
 
+/* TLP Specific Styles */
+#pcie-display h3 {
+    margin-bottom: 2rem;
+}
+
+#tlp-container {
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    width: 100%;
+    border: 1px solid var(--secondary-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tlp-dword {
+    width: 100%;
+    display: flex;
+    border-bottom: 1px solid var(--secondary-color);
+}
+.tlp-dword:last-child {
+    border-bottom: none;
+}
+
+.tlp-field {
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+    border-right: 1px solid var(--secondary-color);
+}
+.tlp-field:last-child {
+    border-right: none;
+}
+
+.tlp-field .label {
+    font-size: 0.75rem;
+    color: var(--text-muted-color);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+.tlp-field .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.field-header { background-color: rgba(129, 140, 248, 0.1); color: var(--tlp-header-color); }
+.field-data { background-color: rgba(244, 114, 182, 0.1); color: var(--tlp-data-color); }
+.field-digest { background-color: rgba(251, 191, 36, 0.1); color: var(--tlp-digest-color); }
+
+.tlp-note {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+}
+
+
 /* Info and Footer */
 .info-section {
     margin-top: 3rem;
@@ -222,7 +279,6 @@ button#generate-btn:hover {
     border-radius: 12px;
     color: var(--text-muted-color);
 }
-
 .info-section h3 {
     color: var(--text-color);
     margin-bottom: 1rem;
