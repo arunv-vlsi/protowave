@@ -24,43 +24,61 @@
                     <option value="uart">UART</option>
                     <option value="i2c">I2C</option>
                     <option value="spi">SPI</option>
-                    <option value="pcie">PCIe (Simplified)</option>
+                    <option value="pcie">PCIe (TLP View)</option>
                 </select>
             </div>
 
-            <div class="control-group">
-                <label>Data Format</label>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="format-toggle" class="toggle-input">
-                    <label for="format-toggle" class="toggle-label">
-                        <span class="toggle-text left">Binary</span>
-                        <span class="toggle-text right">Hex</span>
-                    </label>
+            <div id="waveform-controls" class="control-row">
+                <div class="control-group">
+                    <label>Data Format</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="format-toggle" class="toggle-input">
+                        <label for="format-toggle" class="toggle-label">
+                            <span class="toggle-text left">Binary</span>
+                            <span class="toggle-text right">Hex</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="control-group data-input-group">
+                    <label for="data-input">Input Data</label>
+                    <input type="text" id="data-input" placeholder="e.g., 10110101">
                 </div>
             </div>
 
-            <div class="control-group data-input-group">
-                <label for="data-input">Input Data</label>
-                <input type="text" id="data-input" placeholder="e.g., 10110101">
+            <div id="pcie-controls" class="control-row hidden">
+                <div class="control-group">
+                    <label for="pcie-address">Memory Address (Hex)</label>
+                    <input type="text" id="pcie-address" value="DEADBEEF">
+                </div>
+                <div class="control-group data-input-group">
+                    <label for="pcie-data">Data Payload (Hex, up to 16 bytes)</label>
+                    <input type="text" id="pcie-data" value="F1F2F3F4">
+                </div>
             </div>
 
             <button id="generate-btn">Generate</button>
         </section>
 
-        <section class="waveform-container">
+        <section id="waveform-display" class="display-container">
             <canvas id="waveformCanvas" width="1200" height="600"></canvas>
             <div id="placeholder-text">
-                <h2>Your Waveform Appears Here</h2>
+                <h2>Your Visualization Appears Here</h2>
                 <p>Select a protocol, enter your data, and click 'Generate' to begin.</p>
             </div>
              <div id="error-message" class="hidden"></div>
         </section>
 
-        <section class="info-section">
-            <h3>About Protowave</h3>
-            <p>This is an educational tool designed to help visualize how common digital communication protocols transmit data. The waveforms are simplified representations to illustrate the core concepts of each protocol. For instance, I2C ACK/NACK bits are assumed as ACK, and PCIe is a highly conceptual view of its physical layer signaling.</p>
+        <section id="pcie-display" class="display-container hidden">
+            <h3>Memory Write Transaction Layer Packet (TLP)</h3>
+            <div id="tlp-container">
+                </div>
+            <p class="tlp-note">This is a simplified representation of a 3DW (3 Double Word) Header + Data Payload.</p>
         </section>
 
+        <section class="info-section">
+            <h3>About Protowave</h3>
+            <p>This tool visualizes digital communication protocols. For UART, I2C, and SPI, it generates a physical signal waveform. For PCIe, it shows a higher-level view by constructing a **Transaction Layer Packet (TLP)**, as the physical signal is too complex to be represented meaningfully in this format.</p>
+        </section>
     </main>
 
     <footer>
@@ -68,6 +86,5 @@
     </footer>
 
     <script src="script.js"></script>
-
 </body>
 </html>
