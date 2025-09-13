@@ -77,6 +77,3 @@ HTML5 Canvas API: Used for drawing and rendering the digital waveforms.
 [ ] Add annotations and tooltips to the waveform to explain each part (start bit, data bits, ack, etc.).
 
 [ ] Decode a waveform from an uploaded data file (e.g., CSV).
-
-📄 License
-This project is open-source and available under the MIT License.
